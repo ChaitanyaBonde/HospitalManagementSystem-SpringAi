@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: HMS-AI
+  datasource:
+    url: jdbc:mysql://localhost:3306/hms
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+     ddl-auto: update
+  show-sql: true
+  pattern:
+    console: "%d{HH:mm:ss} [%level] %logger - %msg%n"
+jwt:
+  secret: Secreterjujufvyhgkjgjfghudjdnfuidmjdkms
+admin:
+  secret: adminsecreasdasdasdtkeyforregistration
+
