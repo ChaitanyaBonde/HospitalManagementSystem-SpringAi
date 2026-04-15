@@ -13,8 +13,13 @@ public class Doctor {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
+    private String name;
+    private String fullName;
     private String specialization;
     private String experience;
     private String availability;
+    private Integer available;
+    private String phoneNumber;
+    private String email;
 
 }
