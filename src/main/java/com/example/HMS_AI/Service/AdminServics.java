@@ -10,12 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class AdminServics {
     private final JwtUtility jwtUtility;
     private final AdminRepository adminRepository;
+
     public AdminServics(JwtUtility jwtUtility,
                         AdminRepository adminRepository){
         this.jwtUtility = jwtUtility;
@@ -35,16 +34,16 @@ public class AdminServics {
     public ResponseEntity<GlobalResponseHandler> updateAdmin(AdminUpdateDTO dto, String authorization) {
         String token = authorization.substring(7);
         String userName = jwtUtility.extractUserName(token);
-        AdminEntity admn = adminRepository.findByName(userName).get();
-        admn.setFullName(dto.getFullName());
-        admn.setPhone(dto.getPhone());
+        AdminEntity admin = adminRepository.findByName(userName).orElseThrow(() -> new RuntimeException("Admin Not Found"));
+        admin.setFullName(dto.getFullName());
+        admin.setPhone(dto.getPhone());
         if (dto.getEmail()!=null){
-            admn.setEmail(dto.getEmail());
+            admin.setEmail(dto.getEmail());
         }
         if (dto.getAddress()!=null){
-            admn.setAddress(dto.getAddress());
+            admin.setAddress(dto.getAddress());
         }
-        adminRepository.save(admn);
+        adminRepository.save(admin);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Admin Updates Successfully")
                 .statusCode(HttpStatusCode.valueOf(200))

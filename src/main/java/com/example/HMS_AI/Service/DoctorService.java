@@ -12,6 +12,7 @@ import com.example.HMS_AI.Repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +39,8 @@ public class DoctorService {
     public ResponseEntity<GlobalResponseHandler> registerDoctor(UserDto dto) {
         Optional<User> user = userRepository.findByNameOrEmail(dto.getUserName(), dto.getEmail());
         if (user.isPresent()){
-            String message = user.get().getName().equals(dto.getUserName()) ? "Doctor with User name already exist" :
-                    "Doctor with Email id already exist";
+            String message = user.get().getName().equals(dto.getUserName()) ? "User with User name already exist" :
+                    "User with Email id already exist";
             return ResponseEntity
                     .status(HttpStatus.valueOf(409))
                     .body(GlobalResponseHandler
@@ -78,12 +79,6 @@ public class DoctorService {
         if (dto.getAvailability()!=null){
             doctor.setAvailability(dto.getAvailability());
         }
-        if (dto.getAvailability()!=null){
-            doctor.setAvailability(dto.getAvailability());
-        }
-        if (dto.getAvailability()!=null){
-            doctor.setAvailability(dto.getAvailability());
-        }
         if (dto.getExperience()!=null){
             doctor.setExperience(dto.getExperience());
         }
@@ -92,17 +87,25 @@ public class DoctorService {
         }
         doctorRepository.save(doctor);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
-                .message("Admin Updates Successfully")
+                .message("Doctor Updates Successfully")
                 .statusCode(HttpStatusCode.valueOf(200))
                 .build());
     }
 
-    public ResponseEntity<GlobalResponseHandler> makeDoctorActive(String authorization , String ststus) {
+    public ResponseEntity<GlobalResponseHandler> makeDoctorActive(String authorization , String status) {
         String token = authorization.substring(7);
         String userName = jwtUtility.extractUserName(token);
         Doctor doctor = doctorRepository.findByName(userName).orElseThrow(() -> new RuntimeException("Doctor Not Found"));
-        doctor.setAvailable(Integer.valueOf(ststus));
+        doctor.setAvailable(Integer.valueOf(status));
         doctorRepository.save(doctor);
         return ResponseEntity.ok(GlobalResponseHandler.builder().statusCode(HttpStatus.OK).build());
+    }
+
+    public ResponseEntity<GlobalResponseHandler> getDoctor(String id) {
+        Doctor doctor = doctorRepository.findById(Integer.valueOf(id)).orElseThrow(()-> new UsernameNotFoundException("Doctor Not Found"));
+        return ResponseEntity.ok().body(GlobalResponseHandler.builder()
+                .message("Doctor Details Fetched")
+                .data(doctor)
+                .statusCode(HttpStatus.valueOf(200)).build());
     }
 }

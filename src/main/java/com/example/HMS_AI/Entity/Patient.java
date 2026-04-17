@@ -15,8 +15,11 @@ public class Patient {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
-
+    private String name;
+    private String email;
+    private String fullName;
     private Integer age;
     private String bloodGroup;
     private String medicalHistory;
+    private String phoneNumber;
 }

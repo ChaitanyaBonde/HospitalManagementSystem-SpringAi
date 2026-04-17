@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,12 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
+@Slf4j
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    private UserDetailsServiceIMPL userDetailsServiceIMPL;
-    private JwtUtility jwtUtility;
+    private final UserDetailsServiceIMPL userDetailsServiceIMPL;
+    private final JwtUtility jwtUtility;
 
     public JwtFilter(UserDetailsServiceIMPL userDetailsServiceIMPL,JwtUtility jwtUtility){
         this.jwtUtility = jwtUtility;
@@ -34,9 +35,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")){
             String token = header.substring(7);
             String userName = jwtUtility.extractUserName(token);
-
-            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            log.info("username :: {}", userName);
+            if (userName != null  && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = userDetailsServiceIMPL.loadUserByUsername(userName);
+                log.info(userDetails.getAuthorities().toString());
 
                 if (jwtUtility.validateToken(token,userName)){
                     UsernamePasswordAuthenticationToken authenticationToken =
