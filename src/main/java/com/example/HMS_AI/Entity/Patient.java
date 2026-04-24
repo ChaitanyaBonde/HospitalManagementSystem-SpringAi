@@ -3,6 +3,8 @@ package com.example.HMS_AI.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Table(name = "tbl_patient")
 @Data
@@ -20,6 +22,7 @@ public class Patient {
     private String fullName;
     private Integer age;
     private String bloodGroup;
-    private String medicalHistory;
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicalRecord> medicalHistory;
     private String phoneNumber;
 }

@@ -20,8 +20,9 @@ public class PatientController {
     public ResponseEntity<GlobalResponseHandler> updatePatient(@Valid @RequestBody PatientDTO dto, HttpServletRequest request){
         return patientService.updatePatient(dto,request.getHeader("Authorization"));
     }
-    @GetMapping("{id}")
-    public ResponseEntity<GlobalResponseHandler> getPatient(@PathVariable String id){
-        return patientService.getPatient(id);
+    @GetMapping()
+    public ResponseEntity<GlobalResponseHandler> getPatient(@RequestParam(required = false) String patientId,
+                                                            HttpServletRequest request){
+        return patientService.getPatient(patientId,request.getHeader("Authorization"));
     }
 }

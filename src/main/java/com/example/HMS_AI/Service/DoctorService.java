@@ -1,8 +1,10 @@
 package com.example.HMS_AI.Service;
 
+import com.example.HMS_AI.Common.CustomException.ResourceNotFoundException;
 import com.example.HMS_AI.Component.JwtUtility;
 import com.example.HMS_AI.DTOs.Request.DoctorUpdateDTO;
 import com.example.HMS_AI.DTOs.Request.UserDto;
+import com.example.HMS_AI.DTOs.Response.DoctorDTO;
 import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
 import com.example.HMS_AI.Entity.Doctor;
 import com.example.HMS_AI.Entity.User;
@@ -12,7 +14,6 @@ import com.example.HMS_AI.Repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -69,8 +70,12 @@ public class DoctorService {
     public ResponseEntity<GlobalResponseHandler> updateDoctor(DoctorUpdateDTO dto, String authorization) {
         String token = authorization.substring(7);
         String userName = jwtUtility.extractUserName(token);
-        Doctor doctor = doctorRepository.findByName(userName)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        Doctor doctor ;
+        if (dto.getDoctorId()!=null)
+            doctor = doctorRepository.findById(dto.getDoctorId()).orElseThrow(()-> new ResourceNotFoundException("Doctor Not Found By Id"));
+        else
+            doctor = doctorRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Doctor Not Found, Login Again"));
+
         doctor.setFullName(dto.getFullName());
         doctor.setPhoneNumber(dto.getPhoneNumber());
         if (dto.getEmail()!=null){
@@ -95,17 +100,31 @@ public class DoctorService {
     public ResponseEntity<GlobalResponseHandler> makeDoctorActive(String authorization , String status) {
         String token = authorization.substring(7);
         String userName = jwtUtility.extractUserName(token);
-        Doctor doctor = doctorRepository.findByName(userName).orElseThrow(() -> new RuntimeException("Doctor Not Found"));
+        Doctor doctor = doctorRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Doctor Not Found with name"));
         doctor.setAvailable(Integer.valueOf(status));
         doctorRepository.save(doctor);
         return ResponseEntity.ok(GlobalResponseHandler.builder().statusCode(HttpStatus.OK).build());
     }
 
-    public ResponseEntity<GlobalResponseHandler> getDoctor(String id) {
-        Doctor doctor = doctorRepository.findById(Integer.valueOf(id)).orElseThrow(()-> new UsernameNotFoundException("Doctor Not Found"));
+    public ResponseEntity<GlobalResponseHandler> getDoctor(String id,String authorization) {
+        String token = authorization.substring(7);
+        String userName = jwtUtility.extractUserName(token);
+        Doctor doctor;
+        if (id!=null)
+            doctor = doctorRepository.findById(Integer.valueOf(id)).orElseThrow(()-> new ResourceNotFoundException("Doctor Not Found"));
+        else
+            doctor = doctorRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Doctor Not Found"));
+
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Doctor Details Fetched")
-                .data(doctor)
-                .statusCode(HttpStatus.valueOf(200)).build());
+                .statusCode(HttpStatus.valueOf(200))
+                .data(new DoctorDTO(doctor.getId(),
+                        doctor.getFullName(),
+                        doctor.getSpecialization(),
+                        doctor.getExperience(),
+                        doctor.getAvailability(),
+                        doctor.getPhoneNumber(),
+                        doctor.getEmail()))
+                .build());
     }
 }

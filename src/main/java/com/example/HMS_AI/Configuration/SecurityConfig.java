@@ -1,6 +1,8 @@
 package com.example.HMS_AI.Configuration;
 
 import com.example.HMS_AI.Component.JwtFilter;
+import com.example.HMS_AI.Enum.UserRole;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,11 +28,25 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/doctor/**").hasAnyRole("DOCTOR")
-                        .requestMatchers("/patient/**").hasAnyRole("Patient")
+                        .requestMatchers("/admin/**").hasRole(String.valueOf(UserRole.ADMIN))
+                        .requestMatchers("/doctor/**").hasAnyRole(String.valueOf(UserRole.ADMIN),String.valueOf(UserRole.DOCTOR))
+                        .requestMatchers("/patient/**").hasAnyRole(String.valueOf(UserRole.PATIENT),String.valueOf(UserRole.ADMIN),String.valueOf(UserRole.DOCTOR))
+                        .requestMatchers("/appointment/**").hasAnyRole(String.valueOf(UserRole.PATIENT),String.valueOf(UserRole.ADMIN),String.valueOf(UserRole.DOCTOR))
                         .anyRequest().authenticated()
-                ).sessionManagement(session ->
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Unauthorized\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Forbidden\"}");
+                        })
+                )
+                .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

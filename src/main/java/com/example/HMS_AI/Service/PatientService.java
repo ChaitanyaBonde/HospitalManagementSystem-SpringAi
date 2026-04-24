@@ -1,5 +1,6 @@
 package com.example.HMS_AI.Service;
 
+import com.example.HMS_AI.Common.CustomException.ResourceNotFoundException;
 import com.example.HMS_AI.Component.JwtUtility;
 import com.example.HMS_AI.DTOs.Request.PatientDTO;
 import com.example.HMS_AI.DTOs.Request.UserDto;
@@ -13,7 +14,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -69,24 +69,39 @@ public class PatientService {
     public ResponseEntity<GlobalResponseHandler> updatePatient(@Valid PatientDTO dto, String authorization) {
         String token = authorization.substring(7);
         String userName = jwtUtility.extractUserName(token);
-        Patient patient = patientRepository.findByName(userName)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        Patient patient;
+        if (dto.getPatientId() != null)
+            patient = patientRepository.findById(dto.getPatientId()).orElseThrow(() -> new ResourceNotFoundException("Patient Not Found"));
+        else
+            patient = patientRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
         patient.setFullName(dto.getFullName());
         patient.setPhoneNumber(dto.getPhoneNumber());
         patient.setAge(dto.getAge());
         patient.setBloodGroup(dto.getBloodGroup());
-        patient.setMedicalHistory(dto.getMedicalHistory());
         patientRepository.save(patient);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Patient Updates Successfully")
                 .statusCode(HttpStatusCode.valueOf(200))
                 .build());
     }
-    public ResponseEntity<GlobalResponseHandler> getPatient(String id){
-        Patient patient = patientRepository.findById(Integer.valueOf(id)).orElseThrow(() -> new UsernameNotFoundException("Patient Not Found"));
+    public ResponseEntity<GlobalResponseHandler> getPatient(String id , String authorization){
+        String token = authorization.substring(7);
+        String userName = jwtUtility.extractUserName(token);
+        Patient patient;
+        if (id != null)
+            patient = patientRepository.findById(Integer.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException("Patient Not Found"));
+        else
+            patient = patientRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Patient details fetched")
-                .data(patient)
-                .statusCode(HttpStatus.valueOf(200)).build());
+                .statusCode(HttpStatus.valueOf(200))
+                .data(new com.example.HMS_AI.DTOs.Response.PatientDTO(
+                        patient.getId(),
+                        patient.getEmail(),
+                        patient.getFullName(),
+                        patient.getAge(),
+                        patient.getBloodGroup(),
+                        patient.getPhoneNumber()
+                )).build());
     }
 }

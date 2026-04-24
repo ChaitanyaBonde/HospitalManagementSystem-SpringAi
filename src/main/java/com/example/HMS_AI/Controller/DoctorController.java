@@ -18,7 +18,8 @@ public class DoctorController {
 
 
     @PutMapping("/updateDoctor")
-    public ResponseEntity<GlobalResponseHandler> updateDoctor(@Valid @RequestBody DoctorUpdateDTO dto, HttpServletRequest request){
+    public ResponseEntity<GlobalResponseHandler> updateDoctor(@Valid @RequestBody DoctorUpdateDTO dto,
+                                                              HttpServletRequest request){
         return doctorService.updateDoctor(dto,request.getHeader("Authorization"));
     }
 
@@ -28,9 +29,10 @@ public class DoctorController {
         return doctorService.makeDoctorActive(request.getHeader("Authorization"), status);
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<GlobalResponseHandler> getDoctor(@PathVariable String id){
-        return doctorService.getDoctor(id);
+    @GetMapping()
+    public ResponseEntity<GlobalResponseHandler> getDoctor(@RequestParam(required = false) String doctorId,
+                                                           HttpServletRequest request){
+        return doctorService.getDoctor(doctorId,request.getHeader("Authorization"));
     }
 
 

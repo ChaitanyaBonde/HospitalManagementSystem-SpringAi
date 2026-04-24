@@ -1,6 +1,5 @@
 package com.example.HMS_AI.Entity;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,9 +13,9 @@ public class Prescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "appointment_id")
-    private Appoinment appoinment;
+    private Appointment appointment;
 
     private String medicine;
     private String notes;

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 @Data
 public class DoctorUpdateDTO {
+    private Integer doctorId;
     @NotEmpty(message = "Enter Name")
     private String fullName;
     private String specialization;

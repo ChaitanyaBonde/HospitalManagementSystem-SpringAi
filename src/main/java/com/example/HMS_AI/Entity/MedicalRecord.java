@@ -19,4 +19,10 @@ public class MedicalRecord {
 
     private String report;
     private Date date;
+
+    @OneToOne
+    @JoinColumn(name = "prescription_id")
+    private Prescription prescription;
+
+
 }

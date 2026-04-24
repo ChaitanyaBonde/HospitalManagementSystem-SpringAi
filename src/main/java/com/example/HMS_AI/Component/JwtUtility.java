@@ -5,6 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,11 @@ public class JwtUtility {
     }
 
     public boolean validateToken(String token, String userName){
-        return userName.equals(extractUserName(token));
+        try {
+            return userName.equals(extractUserName(token));
+        }catch (Exception e){
+            SecurityContextHolder.clearContext();
+            return false;
+        }
     }
 }
