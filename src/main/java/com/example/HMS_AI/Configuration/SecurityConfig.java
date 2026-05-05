@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/doctor/**").hasAnyRole(String.valueOf(UserRole.ADMIN),String.valueOf(UserRole.DOCTOR))
                         .requestMatchers("/patient/**").hasAnyRole(String.valueOf(UserRole.PATIENT),String.valueOf(UserRole.ADMIN),String.valueOf(UserRole.DOCTOR))
                         .requestMatchers("/appointment/**").hasAnyRole(String.valueOf(UserRole.PATIENT),String.valueOf(UserRole.ADMIN),String.valueOf(UserRole.DOCTOR))
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

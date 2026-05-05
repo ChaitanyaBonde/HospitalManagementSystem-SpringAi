@@ -6,13 +6,13 @@ import com.example.HMS_AI.DTOs.Request.UserDto;
 import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
 import com.example.HMS_AI.Entity.AdminEntity;
 import com.example.HMS_AI.Entity.User;
+import com.example.HMS_AI.Enum.RequestStatus;
 import com.example.HMS_AI.Enum.UserRole;
 import com.example.HMS_AI.Repository.AdminRepository;
 import com.example.HMS_AI.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +48,7 @@ public class AuthService {
         if (passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword()))
             return ResponseEntity.ok(GlobalResponseHandler.builder()
                     .data(jwtUtility.generateToken(userDetails))
-                    .statusCode(HttpStatusCode.valueOf(200))
+                    .status(RequestStatus.SUCCESS)
                     .message("Login Successully")
                     .build());
         else
@@ -56,7 +56,7 @@ public class AuthService {
                     .status(HttpStatus.valueOf(401))
                     .body(GlobalResponseHandler.builder()
                     .message("Enter Correct Password")
-                    .statusCode(HttpStatusCode.valueOf(401))
+                    .status(RequestStatus.FAILED)
                     .build());
     }
 
@@ -65,8 +65,8 @@ public class AuthService {
         if ( apikey == null  || !apikey.equals(AdminSecretKey))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GlobalResponseHandler
                     .builder()
-                    .message("unauthorise request")
-                    .statusCode(HttpStatusCode.valueOf(401))
+                    .message("unauthorized request")
+                    .status(RequestStatus.FAILED)
                     .build());
         Optional<User> user = userRepository.findByNameOrEmail(loginRequest.getUserName(), loginRequest.getEmail());
         if (user.isPresent()){
@@ -77,7 +77,7 @@ public class AuthService {
                     .body(GlobalResponseHandler
                             .builder()
                             .message(message)
-                            .statusCode(HttpStatus.CONFLICT)
+                            .status(RequestStatus.FAILED)
                             .build());
         }
         User newUser = new User();
@@ -93,7 +93,7 @@ public class AuthService {
         adminRepository.save(admin);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("admin Registered successfully")
-                .statusCode(HttpStatus.valueOf(200)).build());
+                .status(RequestStatus.SUCCESS).build());
 
     }
 }

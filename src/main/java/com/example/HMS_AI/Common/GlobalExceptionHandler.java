@@ -2,18 +2,16 @@ package com.example.HMS_AI.Common;
 
 import com.example.HMS_AI.Common.CustomException.ResourceNotFoundException;
 import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
+import com.example.HMS_AI.Enum.RequestStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
@@ -24,7 +22,7 @@ public class GlobalExceptionHandler {
         ex.printStackTrace();
         return ResponseEntity.internalServerError().body(GlobalResponseHandler.builder()
                 .message("Something Went Wrong : "+ex.getMessage())
-                .statusCode(HttpStatus.valueOf(500)).build());
+                .status(RequestStatus.FAILED).build());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -42,6 +40,6 @@ public class GlobalExceptionHandler {
         ex.printStackTrace();
         return ResponseEntity.status(404).body(GlobalResponseHandler.builder()
                 .message(ex.getMessage())
-                .statusCode(HttpStatus.valueOf(404)).build());
+                .status(RequestStatus.FAILED).build());
     }
 }

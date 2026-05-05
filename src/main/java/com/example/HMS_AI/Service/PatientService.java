@@ -7,12 +7,12 @@ import com.example.HMS_AI.DTOs.Request.UserDto;
 import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
 import com.example.HMS_AI.Entity.Patient;
 import com.example.HMS_AI.Entity.User;
+import com.example.HMS_AI.Enum.RequestStatus;
 import com.example.HMS_AI.Enum.UserRole;
 import com.example.HMS_AI.Repository.PatientRepository;
 import com.example.HMS_AI.Repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class PatientService {
                     .body(GlobalResponseHandler
                             .builder()
                             .message(message)
-                            .statusCode(HttpStatus.CONFLICT)
+                            .status(RequestStatus.FAILED)
                             .build());
         }
         User newUser = new User();
@@ -62,7 +62,7 @@ public class PatientService {
         patientRepository.save(patient);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Patient Registered successfully")
-                .statusCode(HttpStatus.valueOf(200)).build());
+                .status(RequestStatus.SUCCESS).build());
 
     }
 
@@ -81,7 +81,7 @@ public class PatientService {
         patientRepository.save(patient);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Patient Updates Successfully")
-                .statusCode(HttpStatusCode.valueOf(200))
+                .status(RequestStatus.SUCCESS)
                 .build());
     }
     public ResponseEntity<GlobalResponseHandler> getPatient(String id , String authorization){
@@ -94,7 +94,7 @@ public class PatientService {
             patient = patientRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Patient details fetched")
-                .statusCode(HttpStatus.valueOf(200))
+                .status(RequestStatus.SUCCESS)
                 .data(new com.example.HMS_AI.DTOs.Response.PatientDTO(
                         patient.getId(),
                         patient.getEmail(),

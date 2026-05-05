@@ -4,19 +4,19 @@ import com.example.HMS_AI.Component.JwtUtility;
 import com.example.HMS_AI.DTOs.Request.AdminUpdateDTO;
 import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
 import com.example.HMS_AI.Entity.AdminEntity;
+import com.example.HMS_AI.Enum.RequestStatus;
 import com.example.HMS_AI.Repository.AdminRepository;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AdminServics {
+public class AdminServices {
     private final JwtUtility jwtUtility;
     private final AdminRepository adminRepository;
 
-    public AdminServics(JwtUtility jwtUtility,
-                        AdminRepository adminRepository){
+    public AdminServices(JwtUtility jwtUtility,
+                         AdminRepository adminRepository){
         this.jwtUtility = jwtUtility;
         this.adminRepository = adminRepository;
     }
@@ -29,7 +29,7 @@ public class AdminServics {
         return ResponseEntity.ok(GlobalResponseHandler.builder()
                 .message("Admin details ")
                 .data(admin)
-                .statusCode(HttpStatusCode.valueOf(200)).build());
+                .status(RequestStatus.SUCCESS).build());
     }
     public ResponseEntity<GlobalResponseHandler> updateAdmin(AdminUpdateDTO dto, String authorization) {
         String token = authorization.substring(7);
@@ -46,7 +46,7 @@ public class AdminServics {
         adminRepository.save(admin);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Admin Updates Successfully")
-                .statusCode(HttpStatusCode.valueOf(200))
+                .status(RequestStatus.SUCCESS)
                 .build());
     }
 }

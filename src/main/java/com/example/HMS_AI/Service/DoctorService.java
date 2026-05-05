@@ -8,11 +8,11 @@ import com.example.HMS_AI.DTOs.Response.DoctorDTO;
 import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
 import com.example.HMS_AI.Entity.Doctor;
 import com.example.HMS_AI.Entity.User;
+import com.example.HMS_AI.Enum.RequestStatus;
 import com.example.HMS_AI.Enum.UserRole;
 import com.example.HMS_AI.Repository.DoctorRepository;
 import com.example.HMS_AI.Repository.UserRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class DoctorService {
                     .body(GlobalResponseHandler
                             .builder()
                             .message(message)
-                            .statusCode(HttpStatus.CONFLICT)
+                            .status(RequestStatus.FAILED)
                             .build());
         }
         User newUser = new User();
@@ -63,7 +63,7 @@ public class DoctorService {
         doctorRepository.save(doctor);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Doctor Registered successfully")
-                .statusCode(HttpStatus.valueOf(200)).build());
+                .status(RequestStatus.SUCCESS).build());
 
     }
 
@@ -93,7 +93,7 @@ public class DoctorService {
         doctorRepository.save(doctor);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Doctor Updates Successfully")
-                .statusCode(HttpStatusCode.valueOf(200))
+                .status(RequestStatus.SUCCESS)
                 .build());
     }
 
@@ -103,7 +103,7 @@ public class DoctorService {
         Doctor doctor = doctorRepository.findByName(userName).orElseThrow(() -> new ResourceNotFoundException("Doctor Not Found with name"));
         doctor.setAvailable(Integer.valueOf(status));
         doctorRepository.save(doctor);
-        return ResponseEntity.ok(GlobalResponseHandler.builder().statusCode(HttpStatus.OK).build());
+        return ResponseEntity.ok(GlobalResponseHandler.builder().status(RequestStatus.SUCCESS).build());
     }
 
     public ResponseEntity<GlobalResponseHandler> getDoctor(String id,String authorization) {
@@ -117,7 +117,7 @@ public class DoctorService {
 
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Doctor Details Fetched")
-                .statusCode(HttpStatus.valueOf(200))
+                .status(RequestStatus.SUCCESS)
                 .data(new DoctorDTO(doctor.getId(),
                         doctor.getFullName(),
                         doctor.getSpecialization(),

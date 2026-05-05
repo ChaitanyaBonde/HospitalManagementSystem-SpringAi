@@ -9,6 +9,8 @@ import com.example.HMS_AI.DTOs.Response.GlobalResponseHandler;
 import com.example.HMS_AI.DTOs.Response.PatientDTO;
 import com.example.HMS_AI.Entity.*;
 import com.example.HMS_AI.Enum.AppointmentStatus;
+import com.example.HMS_AI.Enum.ReciverEnum;
+import com.example.HMS_AI.Enum.RequestStatus;
 import com.example.HMS_AI.Repository.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatusCode;
@@ -55,7 +57,7 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Appointment Scheduled")
-                .statusCode(HttpStatusCode.valueOf(200)).build());
+                .status(RequestStatus.SUCCESS).build());
     }
 
     public ResponseEntity<GlobalResponseHandler> editAppointmentStatus(String id, AppointmentStatus status) {
@@ -64,12 +66,12 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Appointment Status Updated.")
-                .statusCode(HttpStatusCode.valueOf(200)).build());
+                .status(RequestStatus.SUCCESS).build());
     }
 
-    public ResponseEntity<GlobalResponseHandler> getAppointment(String receiver, String id, AppointmentStatus status) {
+    public ResponseEntity<GlobalResponseHandler> getAppointment(ReciverEnum receiver, String id, AppointmentStatus status) {
         List<AppointmentDTOrsp> returnList = new ArrayList<>();
-        if (receiver.equalsIgnoreCase("Doctor")){
+        if (receiver.equals(ReciverEnum.DOCTOR)){
             List<Appointment> appointmentList = appointmentRepository.findAllByDoctorIdAndStatus(Integer.valueOf(id),status);
             if (!appointmentList.isEmpty()) {
                 for (Appointment apt : appointmentList) {
@@ -94,14 +96,14 @@ public class AppointmentService {
                             apt.getStatus()));
                 }
                 return ResponseEntity.ok().body(GlobalResponseHandler.builder()
-                        .statusCode(HttpStatusCode.valueOf(200))
+                        .status(RequestStatus.SUCCESS)
                         .message("Appointment fetched successfully")
                         .data(returnList).build());
             }else
                 return ResponseEntity.status(201).body(GlobalResponseHandler.builder()
-                    .statusCode(HttpStatusCode.valueOf(201))
+                        .status(RequestStatus.FAILED)
                     .message("No appointment found for doctor").build());
-        }else if (receiver.equalsIgnoreCase("Patient")) {
+        }else if (receiver.equals(ReciverEnum.PATIENT)) {
             List<Appointment> appointmentList = appointmentRepository.findAllByPatientIdAndStatus(Integer.valueOf(id),status);
             if (!appointmentList.isEmpty()) {
                 for (Appointment apt : appointmentList) {
@@ -126,16 +128,16 @@ public class AppointmentService {
                             apt.getStatus()));
                 }
                 return ResponseEntity.ok().body(GlobalResponseHandler.builder()
-                        .statusCode(HttpStatusCode.valueOf(200))
+                        .status(RequestStatus.SUCCESS)
                         .message("Appointment fetched successfully")
                         .data(returnList).build());
             }else
                 return ResponseEntity.status(201).body(GlobalResponseHandler.builder()
-                        .statusCode(HttpStatusCode.valueOf(201))
+                        .status(RequestStatus.FAILED)
                         .message("No appointment found for patient").build());
         }
         return ResponseEntity.status(405).body(GlobalResponseHandler.builder()
-                .statusCode(HttpStatusCode.valueOf(405))
+                .status(RequestStatus.FAILED)
                 .message("Enter Correct Receiver").build());
     }
 
@@ -159,7 +161,7 @@ public class AppointmentService {
         medicalRecordRepository.save(medicalRecord);
         return ResponseEntity.ok().body(GlobalResponseHandler.builder()
                 .message("Appointment status updated successfully")
-                .statusCode(HttpStatusCode.valueOf(200))
+                .status(RequestStatus.SUCCESS)
                 .build());
     }
 }
